@@ -4,6 +4,7 @@ import os
 import ssl
 import sys
 from time import time
+from tkinter import NO
 from typing import Generator
 from typing import List
 from typing import Union
@@ -11,6 +12,7 @@ from typing import Union
 import aiohttp
 import certifi
 import httpx
+import urllib
 from BingImageCreator import ImageGenAsync
 
 from .constants import DELIMITER
@@ -34,15 +36,17 @@ class ChatHub:
         proxy: str = None,
         cookies: Union[List[dict], None] = None,
     ) -> None:
+        conversationSignature = conversation.struct.get("conversationSignature") or None
         self.aio_session = None
         self.request: ChatHubRequest
         self.loop: bool
         self.task: asyncio.Task
         self.request = ChatHubRequest(
-            conversation_signature=conversation.struct["conversationSignature"],
+            conversation_signature=conversationSignature,
             client_id=conversation.struct["clientId"],
             conversation_id=conversation.struct["conversationId"],
         )
+        self.sec_access_token = conversation.struct["secAccessToken"] or None
         self.cookies = cookies
         self.proxy: str = proxy
         proxy = (
@@ -103,6 +107,10 @@ class ChatHub:
             for cookie in self.cookies:
                 cookies[cookie["name"]] = cookie["value"]
         self.aio_session = aiohttp.ClientSession(cookies=cookies)
+        token = urllib.parse.quote_plus(self.sec_access_token) if self.sec_access_token else ''
+        print('asdfasdfasfda=============')
+        wss_link = f'{wss_link}?sec_access_token={token}'
+        print(wss_link)
         # Check if websocket is closed
         wss = await self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",

@@ -1,5 +1,6 @@
 import json
 import os
+from tkinter import NO
 from typing import List
 from typing import Union
 
@@ -22,6 +23,7 @@ class Conversation:
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
+            "secAccessToken": None,
             "result": {"value": "Success", "message": None},
         }
         self.proxy = proxy
@@ -72,6 +74,7 @@ class Conversation:
             "conversationId": None,
             "clientId": None,
             "conversationSignature": None,
+            "secAccessToken": None,
             "result": {"value": "Success", "message": None},
         }
         self.proxy = proxy
@@ -119,4 +122,8 @@ class Conversation:
             ) from exc
         if self.struct["result"]["value"] == "UnauthorizedRequest":
             raise NotAllowedToAccess(self.struct["result"]["message"])
+        if 'X-Sydney-Encryptedconversationsignature' in response.headers:
+            self.struct['secAccessToken'] = response.headers['X-Sydney-Encryptedconversationsignature']
+        
+        print(self.struct)
         return self
