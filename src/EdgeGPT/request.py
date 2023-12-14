@@ -7,7 +7,7 @@ from .conversation_style import ConversationStyle
 from .utilities import get_location_hint_from_locale
 from .utilities import get_ran_hex
 from .utilities import guess_locale
-
+import json
 
 class ChatHubRequest:
     def __init__(
@@ -83,26 +83,26 @@ class ChatHubRequest:
                     ],
                     "sliceIds": [
                         "winmuid1tf",
-                        "styleoff",
-                        "ccadesk",
-                        "smsrpsuppv4cf",
-                        "ssrrcache",
-                        "contansperf",
-                        "crchatrev",
-                        "winstmsg2tf",
-                        "creatgoglt",
-                        "creatorv2t",
-                        "sydconfigoptt",
-                        "adssqovroff",
-                        "530pstho",
-                        "517opinion",
-                        "418dhlth",
-                        "512sprtic1s0",
-                        "emsgpr",
-                        "525ptrcps0",
+                        "newmma-prod",
+                        "imgchatgptv2",
+                        "tts2",
+                        "voicelang2",
+                        "anssupfotest",
+                        "emptyoson",
+                        "tempcacheread",
+                        "temptacache",
+                        "ctrlworkpay",
+                        "winlongmsg2tf",
+                        "628fabocs0",
+                        "531rai268s0",
+                        "602refusal",
+                        "621alllocs0",
+                        "621docxfmtho",
+                        "621preclsvn",
+                        "330uaug",
                         "529rweas0",
-                        "515oscfing2s0",
-                        "524vidansgs0",
+                        "0626snptrcs0",
+                        "619dagslnv1nr"
                     ],
                     "verbosity": "verbose",
                     "traceId": get_ran_hex(32),
@@ -153,4 +153,5 @@ class ChatHubRequest:
             ]
         self.invocation_id += 1
 
+        # print(json.dumps(self.struct))
         # print(timestamp)
