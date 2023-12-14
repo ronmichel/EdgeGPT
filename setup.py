@@ -19,8 +19,8 @@ setup(
     description="Reverse engineered Edge Chat API",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    url="https://github.com/acheong08/EdgeGPT",
-    project_urls={"Bug Report": "https://github.com/acheong08/EdgeGPT/issues/new"},
+    url="https://github.com/xingty/EdgeGPT",
+    project_urls={"Bug Report": "https://github.com/xingty/EdgeGPT/issues/new"},
     entry_points={
         "console_scripts": [
             "edge-gpt = EdgeGPT.main:main",
