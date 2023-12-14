@@ -108,9 +108,7 @@ class ChatHub:
                 cookies[cookie["name"]] = cookie["value"]
         self.aio_session = aiohttp.ClientSession(cookies=cookies)
         token = urllib.parse.quote_plus(self.sec_access_token) if self.sec_access_token else ''
-        print('asdfasdfasfda=============')
         wss_link = f'{wss_link}?sec_access_token={token}'
-        print(wss_link)
         # Check if websocket is closed
         wss = await self.aio_session.ws_connect(
             wss_link or "wss://sydney.bing.com/sydney/ChatHub",

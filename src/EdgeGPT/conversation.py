@@ -125,5 +125,4 @@ class Conversation:
         if 'X-Sydney-Encryptedconversationsignature' in response.headers:
             self.struct['secAccessToken'] = response.headers['X-Sydney-Encryptedconversationsignature']
         
-        print(self.struct)
         return self
