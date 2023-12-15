@@ -153,5 +153,5 @@ class ChatHubRequest:
             ]
         self.invocation_id += 1
 
-        # print(json.dumps(self.struct))
+        print(json.dumps(self.struct))
         # print(timestamp)
