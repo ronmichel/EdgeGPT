@@ -25,7 +25,7 @@ class ConversationStyle(Enum):
     creative = _BASE_OPTION_SETS + ["h3imaginative"]
     balanced = _BASE_OPTION_SETS + ["galileo"]
     precise = _BASE_OPTION_SETS + ["h3precise"]
-    gpt4_turbo = _BASE_OPTION_SETS + ["dlgpt4t"]
+
 
 
 CONVERSATION_STYLE_TYPE = Optional[

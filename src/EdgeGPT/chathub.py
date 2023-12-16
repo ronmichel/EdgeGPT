@@ -100,6 +100,8 @@ class ChatHub:
         webpage_context: Union[str, None] = None,
         search_result: bool = False,
         locale: str = guess_locale(),
+        mode: str = None,
+        no_search: bool = True,
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
         cookies = {}
@@ -124,6 +126,8 @@ class ChatHub:
             webpage_context=webpage_context,
             search_result=search_result,
             locale=locale,
+            mode=mode,
+            no_search=no_search
         )
         # Send request
         await wss.send_str(append_identifier(self.request.struct))
@@ -154,12 +158,9 @@ class ChatHub:
                     "messages",
                 ):
                     if not draw:
-                        if (
-                            response["arguments"][0]["messages"][0].get(
-                                "messageType",
-                            )
-                            == "GenerateContentQuery"
-                        ):
+                        msg_type = response["arguments"][0]["messages"][0].get("messageType")
+                        if (msg_type == "GenerateContentQuery"
+):
                             try:
                                 async with ImageGenAsync(
                                     all_cookies=self.cookies,
@@ -181,20 +182,15 @@ class ChatHub:
                             and not draw
                             and not raw
                         ):
-                            resp_txt = result_text + response["arguments"][0][
-                                "messages"
-                            ][0]["adaptiveCards"][0]["body"][0].get("text", "")
+                            body = response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]
+                            resp_txt = result_text + body.get("text", "")
                             resp_txt_no_link = result_text + response["arguments"][0][
                                 "messages"
                             ][0].get("text", "")
-                            if response["arguments"][0]["messages"][0].get(
-                                "messageType",
-                            ):
+                            if msg_type and "inlines" in body:
                                 resp_txt = (
                                     resp_txt
-                                    + response["arguments"][0]["messages"][0][
-                                        "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")
+                                    + body["inlines"][0].get("text")
                                     + "\n"
                                 )
                                 result_text = (

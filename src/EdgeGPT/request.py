@@ -31,6 +31,8 @@ class ChatHubRequest:
         webpage_context: Union[str, None] = None,
         search_result: bool = False,
         locale: str = guess_locale(),
+        mode: str = None,
+        no_search: bool = True,
     ) -> None:
         options = [
             "deepleo",
@@ -42,6 +44,13 @@ class ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value
+        #enable gpt4_turbo
+        if mode == 'gpt4-turbo':
+            options.append('dlgpt4t')
+        
+        if no_search:
+            options.append('nosearchall')
+
         message_id = str(uuid.uuid4())
         # Get the current local time
         now_local = datetime.now()
@@ -133,7 +142,7 @@ class ChatHubRequest:
             "target": "chat",
             "type": 4,
         }
-        if search_result:
+        if (not no_search) and (search_result):
             have_search_result = [
                 "InternalSearchQuery",
                 "InternalSearchResult",
