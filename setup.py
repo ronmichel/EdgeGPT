@@ -11,8 +11,8 @@ if not PATH.exists():
             f2.write(f1.read())
 
 setup(
-    name="EdgeGPT",
-    version="0.13.2",
+    name="EdgeGPT-fork",
+    version="0.14.0",
     license="The Unlicense",
     author="Antonio Cheong",
     author_email="acheong@student.dalat.org",
