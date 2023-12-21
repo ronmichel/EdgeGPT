@@ -33,7 +33,7 @@ _The reverse engineering the chat feature of the new version of Bing_
 ## Install package
 
 ```bash
-python3 -m pip install EdgeGPT --upgrade
+python3 -m pip install EdgeGPT-fork --upgrade
 ```
 
 ## Requirements
