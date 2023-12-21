@@ -43,7 +43,7 @@ class ChatHubRequest:
         if conversation_style:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
-            options = conversation_style.value
+            options = conversation_style.value.copy()
         #enable gpt4_turbo
         if mode == 'gpt4-turbo':
             options.append('dlgpt4t')
