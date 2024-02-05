@@ -25,6 +25,8 @@ def get_location_hint_from_locale(locale: str) -> Union[dict, None]:
         hint = LocationHint.EU.value
     elif locale == "zh-cn":
         hint = LocationHint.CHINA.value
+    elif locale == "zh-hk":
+        hint = LocationHint.HONGKONG.value
     else:
         hint = LocationHint.USA.value
     return hint.get("LocationHint")

@@ -12,35 +12,72 @@ class LocationHint(Enum):
         "locale": "en-US",
         "LocationHint": [
             {
-                "country": "United States",
-                "state": "California",
-                "city": "Los Angeles",
-                "timezoneoffset": 8,
-                "countryConfidence": 8,
-                "Center": {
-                    "Latitude": 34.0536909,
-                    "Longitude": -118.242766,
-                },
-                "RegionType": 2,
                 "SourceType": 1,
-            },
-        ],
+                "RegionType": 2,
+                "Center": {
+                    "Latitude": 34.05189895529883,
+                    "Longitude": -118.26219950185547
+                },
+                "Radius": 24902,
+                "Name": "Los Angeles, California",
+                "Accuracy": 24902,
+                "FDConfidence": 0.5,
+                "CountryName": "United States",
+                "CountryConfidence": 8,
+                "Admin1Name": "California",
+                "PopulatedPlaceName": "Los Angeles",
+                "PopulatedPlaceConfidence": 5,
+                "PostCodeName": "90017",
+                "UtcOffset": -8,
+                "Dma": 803
+            }
+        ]
     }
     CHINA = {
         "locale": "zh-CN",
         "LocationHint": [
             {
-                "country": "China",
-                "state": "",
-                "city": "Beijing",
-                "timezoneoffset": 8,
-                "countryConfidence": 8,
+                "SourceType": 1,
+                "RegionType": 2,
                 "Center": {
                     "Latitude": 39.9042,
                     "Longitude": 116.4074,
                 },
-                "RegionType": 2,
+                "Radius": 24902,
+                "Name": "Beijing",
+                "Accuracy": 24902,
+                "FDConfidence": 0.5,
+                "CountryName": "China",
+                "CountryConfidence": 8,
+                "Admin1Name": "Kowloon City",
+                "PopulatedPlaceName": "Kowloon City District",
+                "PopulatedPlaceConfidence": 5,
+                "UtcOffset": 8,
+                "Dma": 0
+            },
+        ],
+    }
+    HONGKONG = {
+        "locale": "zh-HK",
+        "LocationHint": [
+            {
                 "SourceType": 1,
+                "RegionType": 2,
+                "Center": {
+                    "Latitude": 22.32819938659668,
+                    "Longitude": 114.19159698486328
+                },
+                "Radius": 24902,
+                "Name": "Kowloon City District, Kowloon City",
+                "Accuracy": 24902,
+                "FDConfidence": 0.5,
+                "CountryName": "Hong Kong",
+                "CountryConfidence": 8,
+                "Admin1Name": "Kowloon City",
+                "PopulatedPlaceName": "Kowloon City District",
+                "PopulatedPlaceConfidence": 5,
+                "UtcOffset": 8,
+                "Dma": 0
             },
         ],
     }
@@ -50,7 +87,7 @@ class LocationHint(Enum):
             {
                 "country": "Norway",
                 "state": "",
-                "city": "Oslo",
+                "Name": "Oslo",
                 "timezoneoffset": 1,
                 "countryConfidence": 8,
                 "Center": {
@@ -68,7 +105,7 @@ class LocationHint(Enum):
             {
                 "country": "United Kingdom",
                 "state": "",
-                "city": "London",
+                "Name": "London",
                 "timezoneoffset": 0,
                 "countryConfidence": 8,
                 "Center": {
@@ -82,4 +119,4 @@ class LocationHint(Enum):
     }
 
 
-LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "EU", "UK"]]]
+LOCATION_HINT_TYPES = Optional[Union[LocationHint, Literal["USA", "CHINA", "HONGKONG","EU", "UK"]]]
