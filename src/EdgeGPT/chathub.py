@@ -19,7 +19,8 @@ from .constants import DELIMITER
 from .constants import HEADERS
 from .constants import HEADERS_INIT_CONVER
 from .conversation import Conversation
-from .conversation_style import CONVERSATION_STYLE_TYPE
+from .conversation_style import CONVERSATION_STYLE_TYPE,Persona
+from .plugin import Plugin
 from .request import ChatHubRequest
 from .utilities import append_identifier
 from .utilities import get_ran_hex
@@ -102,6 +103,8 @@ class ChatHub:
         locale: str = guess_locale(),
         mode: str = None,
         no_search: bool = True,
+        persona: Persona = Persona.copilot,
+        plugins: set[Plugin] = {}
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
         cookies = {}
@@ -127,7 +130,9 @@ class ChatHub:
             search_result=search_result,
             locale=locale,
             mode=mode,
-            no_search=no_search
+            no_search=no_search,
+            persona=persona,
+            plugins=plugins
         )
         # Send request
         await wss.send_str(append_identifier(self.request.struct))
@@ -153,7 +158,6 @@ class ChatHub:
                 if obj is None or not obj:
                     continue
                 response = json.loads(obj)
-                # print(response)
                 if response.get("type") == 1 and response["arguments"][0].get(
                     "messages",
                 ):

@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Union
 
 from .conversation_style import CONVERSATION_STYLE_TYPE
-from .conversation_style import ConversationStyle
+from .conversation_style import ConversationStyle,Persona
+from .plugin import Plugin
 from .utilities import get_location_hint_from_locale
 from .utilities import get_ran_hex
 from .utilities import guess_locale
@@ -33,6 +34,8 @@ class ChatHubRequest:
         locale: str = guess_locale(),
         mode: str = None,
         no_search: bool = True,
+        persona: Persona = Persona.copilot,
+        plugins: set[Plugin] = {}
     ) -> None:
         options = [
             "deepleo",
@@ -46,10 +49,34 @@ class ChatHubRequest:
             options = conversation_style.value.copy()
         #enable gpt4_turbo
         if mode == 'gpt4-turbo':
-            options.append('dlgpt4t')
-        
-        if no_search:
+            options.append('gpt4tmncnp')
+
+        plugin_params = []
+        isSearchNeededforPlugin = False
+        for plugin in plugins:
+            val = plugin.value
+            if (val.id is not None):
+                plugin_params.append({
+                    "id": val.id,
+                    "category": 1
+                })
+            
+            if (val.option_set is not None):
+                options.append(val.option_set)
+            
+            if (not isSearchNeededforPlugin) and plugin != Plugin.codeInterpreter:
+                isSearchNeededforPlugin = True
+
+        if isSearchNeededforPlugin and (Plugin.search not in plugins):
+            plugin_params.append({
+                "id": Plugin.search.value.id,
+                "category": 1
+            })    
+
+        if (not isSearchNeededforPlugin) and no_search:
             options.append('nosearchall')
+
+        options.append(persona.value)
 
         message_id = str(uuid.uuid4())
         # Get the current local time
@@ -114,7 +141,10 @@ class ChatHubRequest:
                         "619dagslnv1nr"
                     ],
                     "verbosity": "verbose",
+                    "scenario": "SERP",
+                    "plugins": plugin_params,
                     "traceId": get_ran_hex(32),
+                    "gptId": persona.name,
                     "isStartOfSession": self.invocation_id == 3,
                     "message": {
                         "locale": locale,
@@ -142,14 +172,7 @@ class ChatHubRequest:
             "target": "chat",
             "type": 4,
         }
-        if (not no_search) and (search_result):
-            have_search_result = [
-                "InternalSearchQuery",
-                "InternalSearchResult",
-                "InternalLoaderMessage",
-                "RenderCardRequest",
-            ]
-            self.struct["arguments"][0]["allowedMessageTypes"] += have_search_result
+
         if webpage_context:
             self.struct["arguments"][0]["previousMessages"] = [
                 {
@@ -162,5 +185,4 @@ class ChatHubRequest:
             ]
         self.invocation_id += 1
 
-        # print(json.dumps(self.struct))
-        # print(timestamp)
+        print(json.dumps(self.struct,indent=2,ensure_ascii=False))

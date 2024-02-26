@@ -100,6 +100,8 @@ class Chatbot:
         simplify_response: bool = False,
         mode: str = None,
         no_search: bool = True,
+        persona: Persona = Persona.copilot,
+        plugins: set[Plugin] = {}
     ) -> dict:
         """
         Ask a question to the bot
@@ -123,6 +125,8 @@ class Chatbot:
             locale=locale,
             mode=mode,
             no_search=no_search,
+            persona=persona,
+            plugins=plugins
         ):
             if final:
                 if not simplify_response:
@@ -185,6 +189,8 @@ class Chatbot:
         locale: str = guess_locale(),
         mode: str = None,
         no_search: bool = True,
+        persona: Persona = Persona.copilot,
+        plugins: set[Plugin] = {}
     ) -> Generator[bool, dict | str, None]:
         """
         Ask a question to the bot
@@ -199,6 +205,8 @@ class Chatbot:
             locale=locale,
             mode=mode,
             no_search=no_search,
+            persona=persona,
+            plugins=plugins
         ):
             yield response
 
