@@ -3,20 +3,21 @@ from datetime import datetime
 from typing import Union
 
 from .conversation_style import CONVERSATION_STYLE_TYPE
-from .conversation_style import ConversationStyle,Persona
+from .conversation_style import ConversationStyle, Persona
 from .plugin import Plugin
 from .utilities import get_location_hint_from_locale
 from .utilities import get_ran_hex
 from .utilities import guess_locale
 import json
 
+
 class ChatHubRequest:
     def __init__(
-        self,
-        conversation_signature: str,
-        client_id: str,
-        conversation_id: str,
-        invocation_id: int = 3,
+            self,
+            conversation_signature: str,
+            client_id: str,
+            conversation_id: str,
+            invocation_id: int = 3,
     ) -> None:
         self.struct: dict = {}
 
@@ -26,16 +27,16 @@ class ChatHubRequest:
         self.invocation_id: int = invocation_id
 
     def update(
-        self,
-        prompt: str,
-        conversation_style: CONVERSATION_STYLE_TYPE,
-        webpage_context: Union[str, None] = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        mode: str = None,
-        no_search: bool = True,
-        persona: Persona = Persona.copilot,
-        plugins: set[Plugin] = {}
+            self,
+            prompt: str,
+            conversation_style: CONVERSATION_STYLE_TYPE,
+            webpage_context: Union[str, None] = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            mode: str = None,
+            no_search: bool = True,
+            persona: Persona = Persona.copilot,
+            plugins: set[Plugin] = {}
     ) -> None:
         options = [
             "deepleo",
@@ -47,9 +48,9 @@ class ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value.copy()
-        #enable gpt4_turbo
-        if mode == 'gpt4-turbo':
-            options.append('gpt4tmncnp')
+        #enable gpt4_turbo deprecated
+        # if mode == 'gpt4-turbo':
+        #     options.append('gpt4tmncnp')
 
         plugin_params = []
         isSearchNeededforPlugin = False
@@ -60,10 +61,10 @@ class ChatHubRequest:
                     "id": val.id,
                     "category": 1
                 })
-            
+
             if (val.option_set is not None):
                 options.append(val.option_set)
-            
+
             if (not isSearchNeededforPlugin) and plugin != Plugin.codeInterpreter:
                 isSearchNeededforPlugin = True
 
@@ -71,7 +72,7 @@ class ChatHubRequest:
             plugin_params.append({
                 "id": Plugin.search.value.id,
                 "category": 1
-            })    
+            })
 
         if (not isSearchNeededforPlugin) and no_search:
             options.append('nosearchall')
@@ -184,5 +185,4 @@ class ChatHubRequest:
                 },
             ]
         self.invocation_id += 1
-
-        print(json.dumps(self.struct,indent=2,ensure_ascii=False))
+        # print(json.dumps(self.struct, indent=2, ensure_ascii=False))

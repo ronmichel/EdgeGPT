@@ -23,6 +23,10 @@ _BASE_OPTION_SETS = [
     # may related to image search
     "gptvnodesc",
     "gptvnoex",
+    "sdretrieval", 
+    "gamaxinvoc",
+    "ldsummary",
+    "ldqa",
 ]
 
 class ConversationStyle(Enum):

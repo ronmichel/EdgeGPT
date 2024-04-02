@@ -7,13 +7,13 @@ FORWARDED_IP: str = take_ip_socket.getsockname()[0]
 take_ip_socket.close()
 
 DELIMITER = "\x1e"
+PERSONATE = "chrome116"
 
 HEADERS = {
     "accept": "application/json",
     "accept-language": "en-US;q=0.9",
     "accept-encoding": "gzip, deflate, br, zsdch",
     "content-type": "application/json",
-    "sec-ch-ua": '"Not/A)Brand";v="99", "Microsoft Edge";v="115", "Chromium";v="115"',
     "sec-ch-ua-arch": '"x86"',
     "sec-ch-ua-bitness": '"64"',
     "sec-ch-ua-full-version": '"115.0.1901.188"',
@@ -35,10 +35,8 @@ HEADERS = {
 
 HEADERS_INIT_CONVER = {
     "authority": "www.bing.com",
-    "accept": "application/json",
     "accept-language": "en-US;q=0.9",
     "cache-control": "max-age=0",
-    "sec-ch-ua": '"Not/A)Brand";v="99", "Microsoft Edge";v="115", "Chromium";v="115"',
     "sec-ch-ua-arch": '"x86"',
     "sec-ch-ua-bitness": '"64"',
     "sec-ch-ua-full-version": '"115.0.1901.188"',
@@ -48,7 +46,6 @@ HEADERS_INIT_CONVER = {
     "sec-ch-ua-platform": '"Windows"',
     "sec-ch-ua-platform-version": '"15.0.0"',
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188",
     "x-edge-shopping-flag": "1",
     "x-forwarded-for": FORWARDED_IP,
 }

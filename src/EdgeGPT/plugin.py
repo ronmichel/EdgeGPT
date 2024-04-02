@@ -7,7 +7,7 @@ class Item():
     
 
 class Plugin(Enum):
-    codeInterpreter = Item(None,"codeint")
+    codeInterpreter = Item(None,"codeintfile")
     instacart = Item('46664d33-1591-4ce8-b3fb-ba1022b66c11', '0A402EDC')
     kayak = Item('d6be744c-2bd9-432f-95b7-76e103946e34', 'C0BB4EAB')
     klarna = Item('5f143ea3-8c80-4efd-9515-185e83b7cf8a', '606E9E5D')
