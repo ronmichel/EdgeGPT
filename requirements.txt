@@ -1,8 +1,10 @@
 aiohttp
-BingImageCreator
+BingImageCreator-fork==0.7.6
 certifi
 httpx
 prompt_toolkit
 requests
 rich
 curl_cffi
+setuptools
+pytest

@@ -1,15 +1,11 @@
 import asyncio
 import json
 import os
-import ssl
 import sys
 from time import time
-from tkinter import NO
+from enum import Enum
 from typing import Generator, List, Union, Optional, Tuple
 
-import aiohttp
-import certifi
-import httpx
 from curl_cffi import requests
 from curl_cffi.requests.websockets import WebSocket
 from curl_cffi.const import CurlWsFlag
@@ -27,11 +23,7 @@ from .request import ChatHubRequest
 from .utilities import append_identifier
 from .utilities import get_ran_hex
 from .utilities import guess_locale
-
-
-# ssl_context = ssl.create_default_context()
-# ssl_context.load_verify_locations(certifi.where())
-
+from .utilities import parse_search_result
 
 class ChatHub:
     def __init__(
@@ -143,8 +135,13 @@ class ChatHub:
         await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
         draw = False
         resp_txt = ""
-        result_text = ""
         resp_txt_no_link = ""
+        generate = None
+        new_line = "\n"
+        search_hint = "Searching the web for:\n"
+        search_refs = []
+        search_keywords = ""
+        offset = 0
         async for obj in self._receive_messages(wss):
             if int(time()) % 6 == 0:
                 await wss.asend(append_identifier({"type": 6}).encode("utf-8"))
@@ -153,91 +150,81 @@ class ChatHub:
                 continue
 
             response = json.loads(obj)
-            if response.get("type") == 1 and response["arguments"][0].get(
+            r_type = response.get("type")
+            if r_type in [6, 7]:
+                await wss.asend(append_identifier({"type": r_type}).encode("utf-8"))
+
+            if raw:
+                yield r_type == 2, response
+                continue
+
+            if r_type == 1 and response["arguments"][0].get(
                     "messages",
             ):
-                if not draw:
-                    msg_type = response["arguments"][0]["messages"][0].get("messageType")
-                    if msg_type == "GenerateContentQuery":
-                        try:
-                            async with ImageGenAsync(
-                                    all_cookies=self.cookies,
-                            ) as image_generator:
-                                images = await image_generator.get_images(
-                                    response["arguments"][0]["messages"][0]["text"],
-                                )
-                            for i, image in enumerate(images):
-                                resp_txt = f"{resp_txt}\n![image{i}]({image})"
-                            draw = True
-                        except Exception as e:
-                            print(e)
-                            continue
-                    if (
-                            (
-                                    response["arguments"][0]["messages"][0]["contentOrigin"]
-                                    != "Apology"
-                            )
-                            and not draw
-                            and not raw
-                    ):
-                        body = response["arguments"][0]["messages"][0]["adaptiveCards"][0]["body"][0]
-                        resp_txt = result_text + body.get("text", "")
-                        resp_txt_no_link = result_text + response["arguments"][0][
-                            "messages"
-                        ][0].get("text", "")
-                        if msg_type and "inlines" in body:
-                            resp_txt = (
-                                    resp_txt
-                                    + body["inlines"][0].get("text")
-                                    + "\n"
-                            )
-                            result_text = (
-                                    result_text
-                                    + response["arguments"][0]["messages"][0][
-                                        "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")
-                                    + "\n"
-                            )
-                    if not raw:
-                        yield False, resp_txt
+                message = response["arguments"][0]["messages"][0]
+                msg_type = message.get("messageType")
+                hidden_text = message.get("hiddenText")
+                text = message.get("text")
+                if msg_type == "InternalSearchQuery":
+                    search_keywords = f"{search_keywords}\n{search_hint}{hidden_text}\n"
+                    resp_txt = search_keywords
+                elif msg_type == "InternalSearchResult":
+                    search_refs += parse_search_result(message)
+                # elif msg_type == "GeneratedCode":
+                #     resp_txt = f"{resp_txt}\n{text}"
+                elif msg_type == "GenerateContentQuery":
+                    generate = {
+                        "content_type": message.get("contentType"),
+                        "prompt": text
+                    }
+                elif msg_type is None:
+                    if message.get("contentOrigin") == "Apology":
+                        print('message has been revoked')
+                        print(message)
+                        result = f"{message.get('text')} -end- (message has been revoked)"
+                        resp_txt = f"{resp_txt}\n{result}"
 
+                    text = new_line + text
+                    resp_txt = f"{resp_txt}{text[offset:]}"
+                    offset = len(text)
+                    new_line = ""
+
+                yield False, resp_txt
             elif response.get("type") == 2:
                 if response["item"]["result"].get("error"):
-                    await self.close()
                     raise Exception(
                         f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                     )
-                if draw:
-                    cache = response["item"]["messages"][1]["adaptiveCards"][0][
-                        "body"
-                    ][0]["text"]
-                    response["item"]["messages"][1]["adaptiveCards"][0]["body"][0][
-                        "text"
-                    ] = (cache + resp_txt)
-                if (
-                        response["item"]["messages"][-1]["contentOrigin"] == "Apology"
-                        and resp_txt
-                ):
-                    response["item"]["messages"][-1]["text"] = resp_txt_no_link
-                    response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0][
-                        "text"
-                    ] = resp_txt
-                    print(
-                        "Preserved the message from being deleted",
-                        file=sys.stderr,
-                    )
-                wss.close()
-                if not self.aio_session.is_closed():
-                    await self.aio_session.close()
+
+                message = response["item"]["messages"][-1]
+                if generate:
+                    if generate["content_type"] == "IMAGE":
+                        async with ImageGenAsync(
+                            all_cookies=self.cookies,
+                            proxy=self.proxy
+                        ) as image_obj:
+                            try:
+                                images = await image_obj.get_images(generate["prompt"])
+                                image_str = "\n".join([f"![]({image})" for image in images])
+                                resp_txt = f"{resp_txt}\n{image_str}"
+                            except Exception as e:
+                                print(str(e))
+                                hint = "Your prompt has been prohibited by third-service. Please modify it."
+                                resp_txt = f"{resp_txt}\n{e}\n{hint}"
+
+                            yield False, resp_txt
+
+                if len(search_refs) > 0:
+                    refs_str = ""
+                    for index, item in enumerate(search_refs):
+                        refs_str += f'- [^{index}^] [{item["title"]}]({item["url"]})\n'
+
+                    resp_txt = f"{resp_txt}\n{refs_str}"
+
+                message["text"] = resp_txt
+                response["text"] = resp_txt
                 yield True, response
                 return
-            if response.get("type") != 2:
-                if response.get("type") == 6:
-                    await wss.asend(append_identifier({"type": 6}).encode("utf-8"))
-                elif response.get("type") == 7:
-                    await wss.asend(append_identifier({"type": 7}).encode("utf-8"))
-                elif raw:
-                    yield False, response
 
     async def _initial_handshake(self, wss) -> None:
         proto = append_identifier({"protocol": "json", "version": 1})
@@ -312,3 +299,8 @@ class AsyncSession(requests.AsyncSession):
 
     def is_closed(self):
         return self._closed
+
+    async def close(self) -> None:
+        if not self._closed:
+            await super().close()
+
