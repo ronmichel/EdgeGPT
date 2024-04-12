@@ -1,9 +1,7 @@
 import asyncio
 import json
 import os
-import sys
 from time import time
-from enum import Enum
 from typing import Generator, List, Union, Optional, Tuple
 
 from curl_cffi import requests
@@ -24,6 +22,7 @@ from .utilities import append_identifier
 from .utilities import get_ran_hex
 from .utilities import guess_locale
 from .utilities import parse_search_result
+
 
 class ChatHub:
     def __init__(
@@ -95,9 +94,7 @@ class ChatHub:
             conversation_style: CONVERSATION_STYLE_TYPE = None,
             raw: bool = False,
             webpage_context: Union[str, None] = None,
-            search_result: bool = False,
             locale: str = guess_locale(),
-            mode: str = None,
             no_search: bool = True,
             persona: Persona = Persona.copilot,
             plugins: set[Plugin] = {}
@@ -124,22 +121,19 @@ class ChatHub:
             prompt=prompt,
             conversation_style=conversation_style,
             webpage_context=webpage_context,
-            search_result=search_result,
             locale=locale,
-            mode=mode,
             no_search=no_search,
             persona=persona,
             plugins=plugins
         )
         # Send request
         await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
-        draw = False
         resp_txt = ""
-        resp_txt_no_link = ""
         generate = None
         new_line = "\n"
         search_hint = "Searching the web for:\n"
         search_refs = []
+        images = []
         search_keywords = ""
         offset = 0
         async for obj in self._receive_messages(wss):
@@ -155,8 +149,12 @@ class ChatHub:
                 await wss.asend(append_identifier({"type": r_type}).encode("utf-8"))
 
             if raw:
-                yield r_type == 2, response
-                continue
+                done = r_type == 2
+                yield done, response
+                if not done:
+                    continue
+                else:
+                    return
 
             if r_type == 1 and response["arguments"][0].get(
                     "messages",
@@ -170,8 +168,6 @@ class ChatHub:
                     resp_txt = search_keywords
                 elif msg_type == "InternalSearchResult":
                     search_refs += parse_search_result(message)
-                # elif msg_type == "GeneratedCode":
-                #     resp_txt = f"{resp_txt}\n{text}"
                 elif msg_type == "GenerateContentQuery":
                     generate = {
                         "content_type": message.get("contentType"),
@@ -200,19 +196,15 @@ class ChatHub:
                 if generate:
                     if generate["content_type"] == "IMAGE":
                         async with ImageGenAsync(
-                            all_cookies=self.cookies,
-                            proxy=self.proxy
+                                all_cookies=self.cookies,
+                                proxy=self.proxy
                         ) as image_obj:
                             try:
                                 images = await image_obj.get_images(generate["prompt"])
-                                image_str = "\n".join([f"![]({image})" for image in images])
-                                resp_txt = f"{resp_txt}\n{image_str}"
                             except Exception as e:
                                 print(str(e))
                                 hint = "Your prompt has been prohibited by third-service. Please modify it."
                                 resp_txt = f"{resp_txt}\n{e}\n{hint}"
-
-                            yield False, resp_txt
 
                 if len(search_refs) > 0:
                     refs_str = ""
@@ -222,7 +214,10 @@ class ChatHub:
                     resp_txt = f"{resp_txt}\n{refs_str}"
 
                 message["text"] = resp_txt
-                response["text"] = resp_txt
+                response["media"] = {
+                    "images": images
+                }
+
                 yield True, response
                 return
 
@@ -259,13 +254,15 @@ class ChatHub:
                 # Remove the processed message from the buffer
                 buffer = buffer[delimiter_index + 1:]
 
+        return
+
     async def delete_conversation(
             self,
             conversation_id: str = None,
             conversation_signature: str = None,
             client_id: str = None,
     ) -> None:
-        conversation_id = conversation_id or self.request.conversation_id
+        conversation_id = conversation_id or self.conversation_id
         conversation_signature = (
                 conversation_signature or self.request.conversation_signature
         )
@@ -303,4 +300,3 @@ class AsyncSession(requests.AsyncSession):
     async def close(self) -> None:
         if not self._closed:
             await super().close()
-

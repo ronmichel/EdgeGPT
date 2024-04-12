@@ -18,7 +18,8 @@ _BASE_OPTION_SETS = [
     "streamf",
     "langdtwb",
     "fdwtlst",
-    "fluxcrplus",
+    # "fluxcrplus",
+    "fluxprod"
     "eredirecturl",
     # may related to image search
     "gptvnodesc",

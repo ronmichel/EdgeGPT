@@ -12,7 +12,7 @@ if not PATH.exists():
 
 setup(
     name="EdgeGPT-fork",
-    version="0.14.1",
+    version="0.2.0",
     license="The Unlicense",
     author="Antonio Cheong,Bigbyto",
     author_email="acheong@student.dalat.org,bigbyto@gmail.com",
@@ -35,7 +35,7 @@ setup(
         "certifi",
         "prompt_toolkit",
         "requests",
-        "BingImageCreator>=0.4.4",
+        "BingImageCreator-fork>=0.7.6",
     ],
     long_description=Path.open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",

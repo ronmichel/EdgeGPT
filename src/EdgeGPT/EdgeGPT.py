@@ -3,12 +3,8 @@ Main.py
 """
 from __future__ import annotations
 
-import json
-from typing import Generator
-
 from .chathub import *
 from .conversation import *
-from .conversation_style import *
 from .request import *
 from .utilities import *
 
@@ -121,9 +117,7 @@ class Chatbot:
             conversation_style=conversation_style,
             wss_link=wss_link,
             webpage_context=webpage_context,
-            search_result=search_result,
             locale=locale,
-            mode=mode,
             no_search=no_search,
             persona=persona,
             plugins=plugins
@@ -164,6 +158,8 @@ class Chatbot:
                     if adaptive_cards
                     else None
                 )
+                media = response.get("media") or {}
+
                 return {
                     "text": message["text"],
                     "author": message["author"],
@@ -175,6 +171,7 @@ class Chatbot:
                         "maxNumUserMessagesInConversation"
                     ],
                     "adaptive_text": adaptive_text,
+                    "media": media
                 }
         return {}
 
@@ -201,9 +198,7 @@ class Chatbot:
             wss_link=wss_link,
             raw=raw,
             webpage_context=webpage_context,
-            search_result=search_result,
             locale=locale,
-            mode=mode,
             no_search=no_search,
             persona=persona,
             plugins=plugins
@@ -235,10 +230,11 @@ class Chatbot:
         """
         Reset the conversation
         """
-        if delete:
-            await self.remove_and_close()
-        else:
-            await self.close()
+        # if delete:
+        #     await self.remove_and_close()
+        # else:
+        #     await self.close()
+        await self.close()
         self.chat_hub = ChatHub(
             await Conversation.create(self.proxy, cookies=self.chat_hub.cookies),
             proxy=self.proxy,

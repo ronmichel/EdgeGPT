@@ -31,9 +31,7 @@ class ChatHubRequest:
             prompt: str,
             conversation_style: CONVERSATION_STYLE_TYPE,
             webpage_context: Union[str, None] = None,
-            search_result: bool = False,
             locale: str = guess_locale(),
-            mode: str = None,
             no_search: bool = True,
             persona: Persona = Persona.copilot,
             plugins: set[Plugin] = {}
@@ -193,4 +191,4 @@ class ChatHubRequest:
                 },
             ]
         self.invocation_id += 1
-        print(json.dumps(self.struct, indent=2, ensure_ascii=False))
+        # print(json.dumps(self.struct, indent=2, ensure_ascii=False))

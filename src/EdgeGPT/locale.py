@@ -81,6 +81,30 @@ class LocationHint(Enum):
             },
         ],
     }
+    TW = {
+        "locale": "zh-TW",
+        "LocationHint": [
+            {
+                "SourceType": 1,
+                "RegionType": 2,
+                "Center": {
+                    "Latitude": 24.14189910888672,
+                    "Longitude": 120.68060302734375
+                },
+                "Radius": 24902,
+                "Name": "Central District, Taichung City",
+                "Accuracy": 24902,
+                "FDConfidence": 0.800000011920929,
+                "CountryName": "Taiwan",
+                "CountryConfidence": 8,
+                "Admin1Name": "Taichung City",
+                "PopulatedPlaceName": "Central District",
+                "PopulatedPlaceConfidence": 8,
+                "UtcOffset": 8,
+                "Dma": 0
+            },
+        ],
+    }
     EU = {
         "locale": "en-IE",
         "LocationHint": [

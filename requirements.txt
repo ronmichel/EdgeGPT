@@ -1,5 +1,5 @@
 aiohttp
-BingImageCreator-fork==0.7.6
+BingImageCreator-fork>=0.7.6
 certifi
 httpx
 prompt_toolkit
