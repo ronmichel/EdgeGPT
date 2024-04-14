@@ -36,6 +36,7 @@ setup(
         "prompt_toolkit",
         "requests",
         "BingImageCreator-fork>=0.7.6",
+        "curl_cffi"
     ],
     long_description=Path.open(PATH, encoding="utf-8").read(),
     long_description_content_type="text/markdown",
