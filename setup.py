@@ -12,7 +12,7 @@ if not PATH.exists():
 
 setup(
     name="EdgeGPT-fork",
-    version="0.2.0",
+    version="1.0.0",
     license="The Unlicense",
     author="Antonio Cheong,Bigbyto",
     author_email="acheong@student.dalat.org,bigbyto@gmail.com",
