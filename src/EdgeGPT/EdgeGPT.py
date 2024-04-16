@@ -97,7 +97,8 @@ class Chatbot:
         mode: str = None,
         no_search: bool = True,
         persona: Persona = Persona.copilot,
-        plugins: set[Plugin] = {}
+        plugins: set[Plugin] = {},
+        image_url: str = None,
     ) -> dict:
         """
         Ask a question to the bot
@@ -120,7 +121,8 @@ class Chatbot:
             locale=locale,
             no_search=no_search,
             persona=persona,
-            plugins=plugins
+            plugins=plugins,
+            image_url=image_url,
         ):
             if final:
                 if not simplify_response:
@@ -187,7 +189,8 @@ class Chatbot:
         mode: str = None,
         no_search: bool = True,
         persona: Persona = Persona.copilot,
-        plugins: set[Plugin] = {}
+        plugins: set[Plugin] = {},
+        image_url: str = None,
     ) -> Generator[bool, dict | str, None]:
         """
         Ask a question to the bot
@@ -201,7 +204,8 @@ class Chatbot:
             locale=locale,
             no_search=no_search,
             persona=persona,
-            plugins=plugins
+            plugins=plugins,
+            image_url=image_url
         ):
             yield response
 

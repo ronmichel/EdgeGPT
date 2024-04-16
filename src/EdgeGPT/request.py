@@ -34,7 +34,8 @@ class ChatHubRequest:
             locale: str = guess_locale(),
             no_search: bool = True,
             persona: Persona = Persona.copilot,
-            plugins: set[Plugin] = {}
+            plugins: set[Plugin] = {},
+            image_url: str = None,
     ) -> None:
         options = [
             "deepleo",
@@ -51,28 +52,28 @@ class ChatHubRequest:
         #     options.append('gpt4tmncnp')
 
         plugin_params = []
-        isSearchNeededforPlugin = False
+        is_search_needed_for_plugin = False
         for plugin in plugins:
             val = plugin.value
-            if (val.id is not None):
+            if val.id is not None:
                 plugin_params.append({
                     "id": val.id,
                     "category": 1
                 })
 
-            if (val.option_set is not None):
+            if val.option_set is not None:
                 options.append(val.option_set)
 
-            if (not isSearchNeededforPlugin) and plugin != Plugin.codeInterpreter:
-                isSearchNeededforPlugin = True
+            if (not is_search_needed_for_plugin) and plugin != Plugin.codeInterpreter:
+                is_search_needed_for_plugin = True
 
-        if isSearchNeededforPlugin and (Plugin.search not in plugins):
+        if is_search_needed_for_plugin and (Plugin.search not in plugins):
             plugin_params.append({
                 "id": Plugin.search.value.id,
                 "category": 1
             })
 
-        if (not isSearchNeededforPlugin) and no_search:
+        if (not is_search_needed_for_plugin) and no_search:
             options.append('nosearchall')
 
         options.append(persona.value)
@@ -96,6 +97,22 @@ class ChatHubRequest:
 
         # Get current time
         timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S") + offset_string
+        message = {
+            "locale": locale,
+            "market": locale,
+            "region": locale[-2:],  # en-US -> US
+            "locationHints": get_location_hint_from_locale(locale),
+            "timestamp": timestamp,
+            "author": "user",
+            "inputMethod": "Keyboard",
+            "text": prompt,
+            "messageType": "Chat",
+            "messageId": message_id,
+            "requestId": message_id,
+        }
+        if image_url is not None:
+            message["imageUrl"] = image_url
+
         self.struct = {
             "arguments": [
                 {
@@ -153,19 +170,7 @@ class ChatHubRequest:
                     "traceId": get_ran_hex(32),
                     "gptId": persona.name,
                     "isStartOfSession": self.invocation_id == 3,
-                    "message": {
-                        "locale": locale,
-                        "market": locale,
-                        "region": locale[-2:],  # en-US -> US
-                        "locationHints": get_location_hint_from_locale(locale),
-                        "timestamp": timestamp,
-                        "author": "user",
-                        "inputMethod": "Keyboard",
-                        "text": prompt,
-                        "messageType": "Chat",
-                        "messageId": message_id,
-                        "requestId": message_id,
-                    },
+                    "message": message,
                     "tone": conversation_style.name.capitalize(),  # Make first letter uppercase
                     "requestId": message_id,
                     "conversationSignature": self.conversation_signature,

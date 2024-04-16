@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import os
 from time import time
@@ -8,6 +9,7 @@ from curl_cffi import requests
 from curl_cffi.requests.websockets import WebSocket
 from curl_cffi.const import CurlWsFlag
 from curl_cffi import AsyncCurl
+from curl_cffi.curl import CurlMime
 import urllib
 from BingImageCreator import ImageGenAsync
 
@@ -97,9 +99,13 @@ class ChatHub:
             locale: str = guess_locale(),
             no_search: bool = True,
             persona: Persona = Persona.copilot,
-            plugins: set[Plugin] = {}
+            plugins: set[Plugin] = {},
+            image_url: str = None,
     ) -> Generator[bool, Union[dict, str], None]:
         """ """
+        if (not prompt) and (not image_url):
+            raise ValueError("prompt or image_url must be provided")
+
         cookies = {}
         if self.cookies is not None:
             for cookie in self.cookies:
@@ -124,7 +130,8 @@ class ChatHub:
             locale=locale,
             no_search=no_search,
             persona=persona,
-            plugins=plugins
+            plugins=plugins,
+            image_url=image_url,
         )
         # Send request
         await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
@@ -133,7 +140,6 @@ class ChatHub:
         new_line = "\n"
         search_hint = "Searching the web for:\n"
         search_refs = []
-        images = []
         search_keywords = ""
         offset = 0
         async for obj in self._receive_messages(wss):
@@ -154,7 +160,7 @@ class ChatHub:
                 if not done:
                     continue
                 else:
-                    return
+                    break
 
             if r_type == 1 and response["arguments"][0].get(
                     "messages",
@@ -192,6 +198,7 @@ class ChatHub:
                         f"{response['item']['result']['value']}: {response['item']['result']['message']}",
                     )
 
+                response["media"] = {}
                 message = response["item"]["messages"][-1]
                 if generate:
                     if generate["content_type"] == "IMAGE":
@@ -201,6 +208,10 @@ class ChatHub:
                         ) as image_obj:
                             try:
                                 images = await image_obj.get_images(generate["prompt"])
+                                response["media"] = {
+                                    "prompt": generate["prompt"],
+                                    "images": images
+                                }
                             except Exception as e:
                                 print(str(e))
                                 hint = "Your prompt has been prohibited by third-service. Please modify it."
@@ -214,9 +225,6 @@ class ChatHub:
                     resp_txt = f"{resp_txt}\n{refs_str}"
 
                 message["text"] = resp_txt
-                response["media"] = {
-                    "images": images
-                }
 
                 yield True, response
                 return
@@ -281,6 +289,48 @@ class ChatHub:
 
     async def close(self) -> None:
         await self.session.close()
+
+    async def upload_image(self, binary_image: bytes) -> dict:
+        url = "https://www.bing.com/images/kblob"
+        payload = {
+            "imageInfo": {},
+            "knowledgeRequest": {
+                "invokedSkills": ["ImageById"],
+                "subscriptionId": "Bing.Chat.Multimodal",
+                "invokedSkillsRequestData": {"enableFaceBlur": False},
+                "convoData": {
+                    "convoid": "",
+                    "convotone": "Creative"
+                }
+            }
+        }
+        encode_data = base64.b64encode(binary_image)
+
+        parts = CurlMime()
+        parts.addpart(
+            name="knowledgeRequest",
+            content_type="application/json",
+            data=json.dumps(payload).encode("utf-8"),
+        )
+        parts.addpart(
+            name="imageBase64",
+            content_type="application/octet-stream",
+            data=encode_data,
+        )
+
+        async with AsyncSession(
+            headers={
+                "Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx"
+            },
+            proxy=self.proxy,
+            impersonate=PERSONATE,
+            timeout=900,
+        ) as session:
+            resp = await session.post(url, multipart=parts)
+            if not resp.ok:
+                raise Exception(f"Failed to upload image. Status: {resp.status}")
+
+            return resp.json()
 
 
 class AsyncSession(requests.AsyncSession):
