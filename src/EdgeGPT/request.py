@@ -18,6 +18,7 @@ class ChatHubRequest:
             client_id: str,
             conversation_id: str,
             invocation_id: int = 3,
+            sec_access_token: str = None,
     ) -> None:
         self.struct: dict = {}
 
@@ -47,9 +48,6 @@ class ChatHubRequest:
             if not isinstance(conversation_style, ConversationStyle):
                 conversation_style = getattr(ConversationStyle, conversation_style)
             options = conversation_style.value.copy()
-        #enable gpt4_turbo deprecated
-        # if mode == 'gpt4-turbo':
-        #     options.append('gpt4tmncnp')
 
         plugin_params = []
         is_search_needed_for_plugin = False

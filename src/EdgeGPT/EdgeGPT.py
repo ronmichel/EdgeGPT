@@ -7,6 +7,7 @@ from .chathub import *
 from .conversation import *
 from .request import *
 from .utilities import *
+import time
 
 
 class Chatbot:
@@ -15,9 +16,9 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
+            self,
+            proxy: str | None = None,
+            cookies: list[dict] | None = None,
     ) -> None:
         self.proxy: str | None = proxy
         self.chat_hub: ChatHub = ChatHub(
@@ -28,13 +29,14 @@ class Chatbot:
 
     @staticmethod
     async def create(
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
+            proxy: str | None = None,
+            cookies: list[dict] | None = None,
+            conversation_id: Union[str, None] = None,
     ) -> Chatbot:
         self = Chatbot.__new__(Chatbot)
         self.proxy = proxy
         self.chat_hub = ChatHub(
-            await Conversation.create(self.proxy, cookies=cookies),
+            await Conversation.create(self.proxy, cookies=cookies, conversation_id=conversation_id),
             proxy=self.proxy,
             cookies=cookies,
         )
@@ -56,6 +58,7 @@ class Chatbot:
                         "conversation_signature": conversation_signature,
                         "client_id": client_id,
                         "invocation_id": invocation_id,
+                        "expires": int(time.time()) + 86400 * 7,
                     },
                 ),
             )
@@ -66,12 +69,22 @@ class Chatbot:
         """
         with open(filename) as f:
             conversation = json.load(f)
-            self.chat_hub.request = ChatHubRequest(
-                conversation_signature=conversation["conversation_signature"],
-                client_id=conversation["client_id"],
-                conversation_id=conversation["conversation_id"],
-                invocation_id=conversation["invocation_id"],
-            )
+            await self.load_conversation_from_json(conversation)
+
+    async def load_conversation_from_json(self, conversation: dict) -> None:
+        """
+        Load the conversation from a json file
+        """
+
+
+        self.chat_hub.request = ChatHubRequest(
+            conversation_signature=conversation["conversation_signature"],
+            client_id=conversation["client_id"],
+            conversation_id=conversation["conversation_id"],
+            invocation_id=conversation["invocation_id"],
+        )
+        self.chat_hub.sec_access_token = conversation["sec_access_token"]
+
 
     async def get_conversation(self) -> dict:
         """
@@ -86,19 +99,19 @@ class Chatbot:
         return await self.chat_hub.get_activity()
 
     async def ask(
-        self,
-        prompt: str,
-        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        simplify_response: bool = False,
-        mode: str = None,
-        no_search: bool = True,
-        persona: Persona = Persona.copilot,
-        plugins: set[Plugin] = {},
-        image_url: str = None,
+            self,
+            prompt: str,
+            wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+            conversation_style: CONVERSATION_STYLE_TYPE = None,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            simplify_response: bool = False,
+            mode: str = None,
+            no_search: bool = True,
+            persona: Persona = Persona.copilot,
+            plugins: set[Plugin] = {},
+            image_url: str = None,
     ) -> dict:
         """
         Ask a question to the bot
@@ -114,22 +127,22 @@ class Chatbot:
             response["item"]["messages"][1]["adaptiveCards"][0]["body"][0]["text"]
         """
         async for final, response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link,
-            webpage_context=webpage_context,
-            locale=locale,
-            no_search=no_search,
-            persona=persona,
-            plugins=plugins,
-            image_url=image_url,
+                prompt=prompt,
+                conversation_style=conversation_style,
+                wss_link=wss_link,
+                webpage_context=webpage_context,
+                locale=locale,
+                no_search=no_search,
+                persona=persona,
+                plugins=plugins,
+                image_url=image_url,
         ):
             if final:
                 if not simplify_response:
                     return response
                 messages_left = response["item"]["throttling"][
-                    "maxNumUserMessagesInConversation"
-                ] - response["item"]["throttling"].get(
+                                    "maxNumUserMessagesInConversation"
+                                ] - response["item"]["throttling"].get(
                     "numUserMessagesInConversation",
                     0,
                 )
@@ -178,34 +191,34 @@ class Chatbot:
         return {}
 
     async def ask_stream(
-        self,
-        prompt: str,
-        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        raw: bool = False,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        mode: str = None,
-        no_search: bool = True,
-        persona: Persona = Persona.copilot,
-        plugins: set[Plugin] = {},
-        image_url: str = None,
+            self,
+            prompt: str,
+            wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+            conversation_style: CONVERSATION_STYLE_TYPE = None,
+            raw: bool = False,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            mode: str = None,
+            no_search: bool = True,
+            persona: Persona = Persona.copilot,
+            plugins: set[Plugin] = {},
+            image_url: str = None,
     ) -> Generator[bool, dict | str, None]:
         """
         Ask a question to the bot
         """
         async for response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link,
-            raw=raw,
-            webpage_context=webpage_context,
-            locale=locale,
-            no_search=no_search,
-            persona=persona,
-            plugins=plugins,
-            image_url=image_url
+                prompt=prompt,
+                conversation_style=conversation_style,
+                wss_link=wss_link,
+                raw=raw,
+                webpage_context=webpage_context,
+                locale=locale,
+                no_search=no_search,
+                persona=persona,
+                plugins=plugins,
+                image_url=image_url
         ):
             yield response
 
@@ -216,10 +229,10 @@ class Chatbot:
         await self.chat_hub.close()
 
     async def delete_conversation(
-        self,
-        conversation_id: str = None,
-        conversation_signature: str = None,
-        client_id: str = None,
+            self,
+            conversation_id: str = None,
+            conversation_signature: str = None,
+            client_id: str = None,
     ) -> None:
         """
         Delete the chat in the server
@@ -244,6 +257,14 @@ class Chatbot:
             proxy=self.proxy,
             cookies=self.chat_hub.cookies,
         )
+
+    async def upload_image(
+            self,
+            binary_image: bytes,
+            style: CONVERSATION_STYLE_TYPE = "precise",
+            blur: bool = False
+    ) -> dict:
+        return await self.chat_hub.upload_image(binary_image,style,blur)
 
 
 if __name__ == "__main__":

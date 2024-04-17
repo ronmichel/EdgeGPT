@@ -225,6 +225,8 @@ class ChatHub:
                     resp_txt = f"{resp_txt}\n{refs_str}"
 
                 message["text"] = resp_txt
+                if "media" not in response:
+                    response["media"] = {}
 
                 yield True, response
                 return
@@ -290,17 +292,25 @@ class ChatHub:
     async def close(self) -> None:
         await self.session.close()
 
-    async def upload_image(self, binary_image: bytes) -> dict:
+    async def upload_image(
+            self,
+            binary_image: bytes,
+            style: CONVERSATION_STYLE_TYPE = "precise",
+            blur: bool = False
+    ) -> dict:
+        if not isinstance(style, str):
+            style = style.name
+
         url = "https://www.bing.com/images/kblob"
         payload = {
             "imageInfo": {},
             "knowledgeRequest": {
                 "invokedSkills": ["ImageById"],
                 "subscriptionId": "Bing.Chat.Multimodal",
-                "invokedSkillsRequestData": {"enableFaceBlur": False},
+                "invokedSkillsRequestData": {"enableFaceBlur": blur},
                 "convoData": {
                     "convoid": "",
-                    "convotone": "Creative"
+                    "convotone": style,
                 }
             }
         }

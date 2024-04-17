@@ -1,11 +1,8 @@
 import json
 import os
-from tkinter import NO
 from typing import List
 from typing import Union
 
-# import httpx.AsyncClient/
-from httpx import AsyncClient
 from curl_cffi import requests
 from curl_cffi.requests import AsyncSession
 
@@ -64,6 +61,7 @@ class Conversation:
     async def create(
         proxy: Union[str, None] = None,
         cookies: Union[List[dict], None] = None,
+        conversation_id: Union[str, None] = None,
     ) -> "Conversation":
         self = Conversation(async_mode=True)
         self.struct = {
@@ -93,6 +91,9 @@ class Conversation:
             for cookie in cookies:
                 s.cookies.set(cookie["name"], cookie["value"])
             url = os.environ.get("BING_PROXY_URL") or "https://www.bing.com/turing/conversation/create"
+            if conversation_id:
+                url += f"?conversationId={conversation_id}"
+
             response = await s.get(url=url)
             if response.status_code != 200:
                 print(f"Status code: {response.status_code}")
