@@ -137,11 +137,8 @@ class ChatHub:
         await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
         resp_txt = ""
         generate = None
-        new_line = "\n"
-        search_hint = "Searching the web for:\n"
         search_refs = []
-        search_keywords = ""
-        offset = 0
+        search_keywords = []
         async for obj in self._receive_messages(wss):
             if int(time()) % 6 == 0:
                 await wss.asend(append_identifier({"type": 6}).encode("utf-8"))
@@ -170,8 +167,7 @@ class ChatHub:
                 hidden_text = message.get("hiddenText")
                 text = message.get("text")
                 if msg_type == "InternalSearchQuery":
-                    search_keywords = f"{search_keywords}\n{search_hint}{hidden_text}\n"
-                    resp_txt = search_keywords
+                    search_keywords.append(hidden_text)
                 elif msg_type == "InternalSearchResult":
                     search_refs += parse_search_result(message)
                 elif msg_type == "GenerateContentQuery":
@@ -183,15 +179,14 @@ class ChatHub:
                     if message.get("contentOrigin") == "Apology":
                         print('message has been revoked')
                         print(message)
-                        result = f"{message.get('text')} -end- (message has been revoked)"
-                        resp_txt = f"{resp_txt}\n{result}"
+                        resp_txt = f"{resp_txt}{text} -end- (message has been revoked)"
 
-                    text = new_line + text
-                    resp_txt = f"{resp_txt}{text[offset:]}"
-                    offset = len(text)
-                    new_line = ""
+                    if len(search_keywords) > 0:
+                        keywords = "\n* ".join(search_keywords)
+                        resp_txt = f"{resp_txt}Searching the web for:\n* {keywords}\n\n"
+                        search_keywords = []
 
-                yield False, resp_txt
+                    yield False, f"{resp_txt}{text}"
             elif response.get("type") == 2:
                 if response["item"]["result"].get("error"):
                     raise Exception(
@@ -200,6 +195,7 @@ class ChatHub:
 
                 response["media"] = {}
                 message = response["item"]["messages"][-1]
+                text = message.get("text")
                 if generate:
                     if generate["content_type"] == "IMAGE":
                         async with ImageGenAsync(
@@ -215,14 +211,14 @@ class ChatHub:
                             except Exception as e:
                                 print(str(e))
                                 hint = "Your prompt has been prohibited by third-service. Please modify it."
-                                resp_txt = f"{resp_txt}\n{e}\n{hint}"
+                                resp_txt = f"{resp_txt}{text}\n{e}\n{hint}"
 
                 if len(search_refs) > 0:
                     refs_str = ""
                     for index, item in enumerate(search_refs):
                         refs_str += f'- [^{index}^] [{item["title"]}]({item["url"]})\n'
 
-                    resp_txt = f"{resp_txt}\n{refs_str}"
+                    resp_txt = f"{resp_txt}{text}\n{refs_str}"
 
                 message["text"] = resp_txt
                 if "media" not in response:

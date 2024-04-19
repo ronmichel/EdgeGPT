@@ -18,7 +18,6 @@ class ChatHubRequest:
             client_id: str,
             conversation_id: str,
             invocation_id: int = 3,
-            sec_access_token: str = None,
     ) -> None:
         self.struct: dict = {}
 
