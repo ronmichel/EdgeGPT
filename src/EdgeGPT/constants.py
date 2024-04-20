@@ -49,3 +49,5 @@ HEADERS_INIT_CONVER = {
     "x-edge-shopping-flag": "1",
     "x-forwarded-for": FORWARDED_IP,
 }
+
+CONVERSATION_URL = "https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={signature}&traceId={trace_id}"

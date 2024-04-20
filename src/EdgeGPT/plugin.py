@@ -1,13 +1,14 @@
 from enum import Enum
 
-class Item():
-    def __init__(self,id: str, option_set: str) -> None:
-        self.id = id
+
+class Item:
+    def __init__(self, plugin_id: str, option_set: str) -> None:
+        self.plugin_id = plugin_id
         self.option_set = option_set
-    
+
 
 class Plugin(Enum):
-    codeInterpreter = Item(None,"codeintfile")
+    codeInterpreter = Item('', "codeintfile")
     instacart = Item('46664d33-1591-4ce8-b3fb-ba1022b66c11', '0A402EDC')
     kayak = Item('d6be744c-2bd9-432f-95b7-76e103946e34', 'C0BB4EAB')
     klarna = Item('5f143ea3-8c80-4efd-9515-185e83b7cf8a', '606E9E5D')

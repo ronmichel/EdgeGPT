@@ -82,8 +82,10 @@ async def async_main(args: argparse.Namespace) -> None:
     initial_prompt = args.prompt
 
     # Log chat history
-    def p_hist(*args, **kwargs) -> None:
+    def default_history_logger(*args, **kwargs) -> None:
         pass
+
+    p_hist = default_history_logger
 
     if args.history_file:
         history_file_path = Path(args.history_file)

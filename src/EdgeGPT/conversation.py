@@ -81,7 +81,7 @@ class Conversation:
             or None
         )
         if proxy is not None and proxy.startswith("socks5h://"):
-            proxy = "socks5://" + proxy[len("socks5h://") :]
+            proxy = "socks5://" + proxy[len("socks5h://"):]
 
         async with AsyncSession(
             headers=HEADERS_INIT_CONVER,

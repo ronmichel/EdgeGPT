@@ -7,7 +7,7 @@ except ImportError:
 from typing import Optional
 
 _BASE_OPTION_SETS = [
-	#no jailbreak filter
+    # no jailbreak filter
     "nojbf",
     "iyxapbing",
     "iycapbing",
@@ -30,6 +30,7 @@ _BASE_OPTION_SETS = [
     "ldqa",
 ]
 
+
 class ConversationStyle(Enum):
     creative = _BASE_OPTION_SETS + ["Creative"]
     balanced = _BASE_OPTION_SETS + ["galileo", "gldcl1p"]
@@ -39,6 +40,7 @@ class ConversationStyle(Enum):
 CONVERSATION_STYLE_TYPE = Optional[
     Union[ConversationStyle, Literal["creative", "balanced", "precise"]]
 ]
+
 
 class Persona(Enum):
     designer = "ai_persona_designer_gpt"

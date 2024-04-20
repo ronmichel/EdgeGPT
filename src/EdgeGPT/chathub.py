@@ -13,9 +13,8 @@ from curl_cffi.curl import CurlMime
 import urllib
 from BingImageCreator import ImageGenAsync
 
-from .constants import DELIMITER, PERSONATE
-from .constants import HEADERS
-from .constants import HEADERS_INIT_CONVER
+from .constants import PERSONATE
+from .constants import HEADERS, HEADERS_INIT_CONVER, CONVERSATION_URL
 from .conversation import Conversation
 from .conversation_style import CONVERSATION_STYLE_TYPE, Persona
 from .plugin import Plugin
@@ -74,7 +73,14 @@ class ChatHub:
                 conversation_signature or self.request.conversation_signature
         )
         client_id = client_id or self.request.client_id
-        url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}&source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
+        url = CONVERSATION_URL.format(
+            conversation_id=conversation_id,
+            signature=conversation_signature,
+            client_id=client_id,
+            trace_id=get_ran_hex(),
+        )
+        # url = f"https://sydney.bing.com/sydney/GetConversation?conversationId={conversation_id}
+        # &source=cib&participantId={client_id}&conversationSignature={conversation_signature}&traceId={get_ran_hex()}"
         response = await self.session.get(url)
         return response.json()
 
@@ -87,6 +93,7 @@ class ChatHub:
                     headers["Cookie"] = f"SUID=A; _U={cookie['value']};"
                     break
         response = await self.session.get(url, headers=headers)
+        "%s_%s_%s_%s".format()
         return response.json()
 
     async def ask_stream(

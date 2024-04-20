@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime
 from typing import Union
 
+from .plugin import Item
 from .conversation_style import CONVERSATION_STYLE_TYPE
 from .conversation_style import ConversationStyle, Persona
 from .plugin import Plugin
 from .utilities import get_location_hint_from_locale
 from .utilities import get_ran_hex
 from .utilities import guess_locale
-import json
 
 
 class ChatHubRequest:
@@ -51,10 +51,10 @@ class ChatHubRequest:
         plugin_params = []
         is_search_needed_for_plugin = False
         for plugin in plugins:
-            val = plugin.value
+            val: Item = plugin.value
             if val.id is not None:
                 plugin_params.append({
-                    "id": val.id,
+                    "id": val.plugin_id,
                     "category": 1
                 })
 

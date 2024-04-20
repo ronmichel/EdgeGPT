@@ -76,8 +76,8 @@ class Cookie:
         """
         Cycle through to the next cookies file then import it.
 
-        discard (bool): True -Mark the previous file to be ignored for the remainder of the current session.  Otherwise cycle through all available
-        cookie files (sharing the workload and 'resting' when not in use).
+        discard (bool): True -Mark the previous file to be ignored for the remainder of the current session.
+        Otherwise cycle through all available cookie files (sharing the workload and 'resting' when not in use).
         """
         if not hasattr(cls, "current_file_path"):
             cls.import_data()
@@ -148,7 +148,7 @@ class Query:
                     if isinstance(x, (str, Path)) and x
                 }
                 Cookie.supplied_files = cookie_files
-            files = Cookie.files()  # includes .supplied_files
+            # files = Cookie.files()  # includes .supplied_files
             if Cookie.rotate_cookies:
                 Cookie.import_next()
             else:
@@ -348,47 +348,47 @@ def test_cookie_rotation() -> None:
         log(f"Cookie count: {Cookie.request_count.get(Cookie.current_file_path.name)}")
 
 
-def test_features() -> Query:
-    try:
-        q = Query(
-            f"What is {i} in Roman numerals?  Give the answer in JSON",
-            style="precise",
-        )
-        log(f"{i}: {Cookie.current_file_path.name}")
-        print(f"{Cookie.current_file_index=}")
-        print(f"{Cookie.current_file_path=}")
-        print(f"{Cookie.current_data=}")
-        print(f"{Cookie.dir_path=}")
-        print(f"{Cookie.search_pattern=}")
-        print(f"{Cookie.files()=}")
-        print(f"{Cookie.image_token=}")
-        print(f"{Cookie.import_next(discard=True)=}")
-        print(f"{Cookie.rotate_cookies=}")
-        print(f"{Cookie.files()=}")
-        print(f"{Cookie.ignore_files=}")
-        print(f"{Cookie.supplied_files=}")
-        print(
-            f"{Cookie.request_count=}"
-        )  # Keeps a tally of requests made in using each cookie file during this session
-        print(f"{q=}")
-        print(f"{q.prompt=}")
-        print(f"{q.ignore_cookies=}")
-        print(f"{q.style=}")
-        print(f"{q.simplify_response=}")
-        print(f"{q.locale=}")
-        print(f"{q.output=}")
-        print(q)
-        print(f"{q.sources=}")
-        print(f"{q.sources_dict=}")
-        print(f"{q.suggestions=}")
-        print(f"{q.code=}")  # All code as a single string
-        print(f"{q.code_blocks=}")  # Individual code blocks
-        print(
-            f"{q.code_block_formats=}"
-        )  # The language/format of each code block (if given)
-        print(f"{Query.index=}")  # Keeps an index of Query objects created
-        print(f"{Query.image_dir_path=}")
-    except Exception as E:
-        raise Exception(E) from E
-    finally:
-        return q
+# def test_features() -> Query:
+#     try:
+#         q = Query(
+#             f"What is {i} in Roman numerals?  Give the answer in JSON",
+#             style="precise",
+#         )
+#         log(f"{i}: {Cookie.current_file_path.name}")
+#         print(f"{Cookie.current_file_index=}")
+#         print(f"{Cookie.current_file_path=}")
+#         print(f"{Cookie.current_data=}")
+#         print(f"{Cookie.dir_path=}")
+#         print(f"{Cookie.search_pattern=}")
+#         print(f"{Cookie.files()=}")
+#         print(f"{Cookie.image_token=}")
+#         print(f"{Cookie.import_next(discard=True)=}")
+#         print(f"{Cookie.rotate_cookies=}")
+#         print(f"{Cookie.files()=}")
+#         print(f"{Cookie.ignore_files=}")
+#         print(f"{Cookie.supplied_files=}")
+#         print(
+#             f"{Cookie.request_count=}"
+#         )  # Keeps a tally of requests made in using each cookie file during this session
+#         print(f"{q=}")
+#         print(f"{q.prompt=}")
+#         print(f"{q.ignore_cookies=}")
+#         print(f"{q.style=}")
+#         print(f"{q.simplify_response=}")
+#         print(f"{q.locale=}")
+#         print(f"{q.output=}")
+#         print(q)
+#         print(f"{q.sources=}")
+#         print(f"{q.sources_dict=}")
+#         print(f"{q.suggestions=}")
+#         print(f"{q.code=}")  # All code as a single string
+#         print(f"{q.code_blocks=}")  # Individual code blocks
+#         print(
+#             f"{q.code_block_formats=}"
+#         )  # The language/format of each code block (if given)
+#         print(f"{Query.index=}")  # Keeps an index of Query objects created
+#         print(f"{Query.image_dir_path=}")
+#     except Exception as E:
+#         raise Exception(E) from E
+#     finally:
+#         return q

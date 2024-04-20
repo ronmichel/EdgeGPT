@@ -3,11 +3,15 @@ Main.py
 """
 from __future__ import annotations
 
-from .chathub import *
-from .conversation import *
-from .request import *
-from .utilities import *
+from typing import Generator, Union
+from .chathub import ChatHub
+from .conversation import Conversation
+from .conversation_style import CONVERSATION_STYLE_TYPE, Persona
+from .plugin import Plugin
+from .request import ChatHubRequest
+from .utilities import guess_locale
 import time
+import json
 
 
 class Chatbot:
@@ -76,7 +80,6 @@ class Chatbot:
         Load the conversation from a json file
         """
 
-
         self.chat_hub.request = ChatHubRequest(
             conversation_signature=conversation["conversation_signature"],
             client_id=conversation["client_id"],
@@ -84,7 +87,6 @@ class Chatbot:
             invocation_id=conversation["invocation_id"],
         )
         self.chat_hub.sec_access_token = conversation["sec_access_token"]
-
 
     async def get_conversation(self) -> dict:
         """
@@ -264,7 +266,7 @@ class Chatbot:
             style: CONVERSATION_STYLE_TYPE = "precise",
             blur: bool = False
     ) -> dict:
-        return await self.chat_hub.upload_image(binary_image,style,blur)
+        return await self.chat_hub.upload_image(binary_image, style, blur)
 
 
 if __name__ == "__main__":
