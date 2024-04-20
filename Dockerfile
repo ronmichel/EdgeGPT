@@ -4,6 +4,8 @@ WORKDIR /EdgeGPT
 
 COPY requirements.txt requirements.txt
 
+RUN apk --no-cache add gcc musl-dev
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
