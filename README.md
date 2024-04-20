@@ -243,14 +243,14 @@ This assumes you have a file cookies.json in your current working directory
 
 ```bash
 
-docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/xingty/edgegpt
 ```
 
 You can add any extra flags as following
 
 ```bash
 
-docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/acheong08/edgegpt --rich --style creative
+docker run --rm -it -v $(pwd)/cookies.json:/cookies.json:ro -e COOKIE_FILE='/cookies.json' ghcr.io/xingty/edgegpt --rich --style creative
 ```
 
 </details>
