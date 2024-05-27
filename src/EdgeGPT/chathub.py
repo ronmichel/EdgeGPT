@@ -142,7 +142,7 @@ class ChatHub:
         )
         # Send request
         await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
-        resp_txt = ""
+        prefix_txt = ""
         generate = None
         search_refs = []
         search_keywords = []
@@ -186,14 +186,14 @@ class ChatHub:
                     if message.get("contentOrigin") == "Apology":
                         print('message has been revoked')
                         print(message)
-                        resp_txt = f"{resp_txt}{text} -end- (message has been revoked)"
+                        prefix_txt = f"{prefix_txt}{text} -end- (message has been revoked)"
 
                     if len(search_keywords) > 0:
                         keywords = "\n* ".join(search_keywords)
-                        resp_txt = f"{resp_txt}Searching the web for:\n* {keywords}\n\n"
+                        prefix_txt = f"{prefix_txt}Searching the web for:\n* {keywords}\n\n"
                         search_keywords = []
 
-                    yield False, f"{resp_txt}{text}"
+                    yield False, f"{prefix_txt}{text}"
             elif response.get("type") == 2:
                 if response["item"]["result"].get("error"):
                     raise Exception(
@@ -218,16 +218,17 @@ class ChatHub:
                             except Exception as e:
                                 print(str(e))
                                 hint = "Your prompt has been prohibited by third-service. Please modify it."
-                                resp_txt = f"{resp_txt}{text}\n{e}\n{hint}"
+                                prefix_txt = f"{prefix_txt}{text}\n{e}\n{hint}"
 
                 if len(search_refs) > 0:
                     refs_str = ""
                     for index, item in enumerate(search_refs):
                         refs_str += f'- [^{index}^] [{item["title"]}]({item["url"]})\n'
 
-                    resp_txt = f"{resp_txt}{text}\n{refs_str}"
+                    message["text"] = f"{prefix_txt}{text}\n{refs_str}"
+                else:
+                    message["text"] = f"{prefix_txt}{text}"
 
-                message["text"] = resp_txt
                 if "media" not in response:
                     response["media"] = {}
 
