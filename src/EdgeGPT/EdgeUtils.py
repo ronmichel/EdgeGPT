@@ -7,7 +7,7 @@ from pathlib import Path
 from log2d import Log
 
 from .EdgeGPT import Chatbot
-from .EdgeGPT import ConversationStyle
+from .conversation_style import ConversationStyle
 from .ImageGen import ImageGen
 
 Log("BingChat")
