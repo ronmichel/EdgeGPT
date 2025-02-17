@@ -237,9 +237,9 @@ class ChatHub:
 
     async def _initial_handshake(self, wss) -> None:
         proto = append_identifier({"protocol": "json", "version": 1})
-        await wss.asend(proto.encode("utf-8"))
+        await wss.send(proto.encode("utf-8"))
         await wss.arecv()
-        await wss.asend(append_identifier({"type": 6}).encode("utf8"))
+        await wss.send(append_identifier({"type": 6}).encode("utf8"))
 
     async def _receive_messages(self, wss: WebSocket) -> Generator[str, Tuple[bytes, int], None]:
         buffer = b''
