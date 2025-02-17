@@ -141,14 +141,14 @@ class ChatHub:
             image_url=image_url,
         )
         # Send request
-        await wss.asend(append_identifier(self.request.struct).encode("utf-8"))
+        await wss.send(append_identifier(self.request.struct).encode("utf-8"))
         prefix_txt = ""
         generate = None
         search_refs = []
         search_keywords = []
         async for obj in self._receive_messages(wss):
             if int(time()) % 6 == 0:
-                await wss.asend(append_identifier({"type": 6}).encode("utf-8"))
+                await wss.send(append_identifier({"type": 6}).encode("utf-8"))
 
             if obj is None or not obj:
                 continue
@@ -156,7 +156,7 @@ class ChatHub:
             response = json.loads(obj)
             r_type = response.get("type")
             if r_type in [6, 7]:
-                await wss.asend(append_identifier({"type": r_type}).encode("utf-8"))
+                await wss.send(append_identifier({"type": r_type}).encode("utf-8"))
 
             if raw:
                 done = r_type == 2
